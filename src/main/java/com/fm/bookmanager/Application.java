@@ -1,10 +1,15 @@
-package com.example.application;
+package com.fmexperiments.application;
 
+import com.fmexperiments.application.repository.BookRepository;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
 
 /**
  * The entry point of the Spring Boot application.
@@ -13,7 +18,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * and some desktop browsers.
  *
  */
-@SpringBootApplication
+@SpringBootApplication()
+@EnableJpaRepositories(basePackages = {"com.*"})
+@EntityScan(basePackages ={"com.*"} )
 @Theme(value = "mytodo")
 @NpmPackage(value = "line-awesome", version = "1.3.0")
 public class Application implements AppShellConfigurator {
