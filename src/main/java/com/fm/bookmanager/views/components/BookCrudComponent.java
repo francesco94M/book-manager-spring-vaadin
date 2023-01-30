@@ -1,25 +1,24 @@
-package com.fm.bookmanager.views.main;
+package com.fm.bookmanager.views.components;
 
 import com.fm.bookmanager.entity.Book;
 import com.fm.bookmanager.service.BookService;
 
+import com.fm.bookmanager.utils.BookViewHelper;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.crud.BinderCrudEditor;
 import com.vaadin.flow.component.crud.Crud;
 import com.vaadin.flow.component.crud.CrudEditor;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.textfield.NumberField;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
-import com.vaadin.flow.data.binder.ValueContext;
-import com.vaadin.flow.router.Route;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,23 +26,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 
-public class BookCrudView extends Div {
+public class BookCrudComponent extends Div {
 
 
     private Crud<Book> crud;
 
-    private String NAME = "name";
-    private String AUTHOR = "author";
-
-    private String PAGES = "pages";
-
-    private String EAN_CODE = "eanCode";
-
-    private String PUBLICATION_DATE = "publicationDate";
     private String EDIT_COLUMN = "vaadin-crud-edit-column";
     private final BookService service;
 
-    private Validator<String> digitValidator = (s, valueContext) -> {
+
+    public static final Validator<String> digitValidator = (s, valueContext) -> {
         ValidationResult result  = ValidationResult.ok();
         if(!NumberUtils.isParsable(s))
         {
@@ -52,59 +44,56 @@ public class BookCrudView extends Div {
         }
         return result;
     };
-
-    public BookCrudView(BookService service) {
+    public BookCrudComponent(BookService service) {
         this.service = service;
-        crud = new Crud<>(Book.class, createEditor());
-
+        crud = new Crud<>(Book.class, setupEditor());
         crud.setSizeFull();
         setupGrid();
         setupDataProvider();
-
         add(crud);
     }
 
-    private CrudEditor<Book> createEditor() {
-        TextField name = new TextField("First name");
-        TextField author = new TextField("Author");
-        TextField pages = new TextField("Pages");
-        TextField eanCode = new TextField("EAN");
-        DatePicker publishingDate = new DatePicker("Published on");
+    private CrudEditor<Book> setupEditor() {
+        Component nameField = BookViewHelper.FIELD.NAME.getInputFieldSupplier().get();
+        Component authorField = BookViewHelper.FIELD.AUTHOR.getInputFieldSupplier().get();
+        Component pagesField = BookViewHelper.FIELD.PAGES.getInputFieldSupplier().get();
+        Component eanCodeField = BookViewHelper.FIELD.EAN_CODE.getInputFieldSupplier().get();
+        Component publicationDateField = BookViewHelper.FIELD.PUBLICATION_DATE.getInputFieldSupplier().get();
+
+        Binder<Book> binder = new Binder<>(Book.class);
+        binder.forField((HasValue<?,String>)nameField).asRequired().bind(Book::getName,
+                Book::setName);
+        binder.forField((HasValue<?,String>)authorField).asRequired().bind(Book::getAuthor,
+                Book::setAuthor);
+        binder.forField((HasValue<?,String>)pagesField).asRequired("Pages are required").withValidator(digitValidator).bind((book -> book.getPages()!=null ? book.getPages().toString():""), (Setter<Book, String>) (book, pagesString) -> book.setPages(Integer.parseInt(pagesString)));
+        binder.forField((HasValue<?,String>)eanCodeField).withValidator((Validator<String>) (string, valueContext) -> {
+                    ValidationResult result;
+                    if (StringUtils.isNotBlank(string) && string.length()!=9)
+                    {
+                        result = ValidationResult.create("Ean code must have 9 digits", ErrorLevel.ERROR);
+                    }
+                    else
+                    {
+                        result = digitValidator.apply(string, valueContext);
+                    }
+                    return result;
+                })
+                .asRequired().bind(Book::getEanCode,
+                        Book::setEanCode);
+        binder.forField((HasValue<?, LocalDate>)publicationDateField).asRequired().bind(Book::getPublicationDate,
+                Book::setPublicationDate);
 
 
-        FormLayout form = new FormLayout(name, author,pages,eanCode,publishingDate);
-        form.setColspan(name, 2);
-        form.setColspan(author, 2);
-        form.setColspan(pages, 2);
-        form.setColspan(eanCode, 2);
-        form.setColspan(publishingDate, 2);
+
+        FormLayout form = new FormLayout(nameField, authorField,pagesField,eanCodeField,publicationDateField);
+        form.setColspan(nameField, 2);
+        form.setColspan(authorField, 2);
+        form.setColspan(pagesField, 2);
+        form.setColspan(eanCodeField, 2);
+        form.setColspan(publicationDateField, 2);
 
         form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("30em", 2));
-
-        Binder<Book> binder = new Binder<>(Book.class);
-        binder.forField(name).asRequired().bind(Book::getName,
-                Book::setName);
-        binder.forField(author).asRequired().bind(Book::getAuthor,
-                Book::setAuthor);
-        binder.forField(pages).asRequired("Pages are required").withValidator(digitValidator).bind((book -> book.getPages()!=null ? book.getPages().toString():""), (Setter<Book, String>) (book, pagesString) -> book.setPages(Integer.parseInt(pagesString)));
-        binder.forField(eanCode).withValidator((Validator<String>) (string, valueContext) -> {
-            ValidationResult result;
-            if (StringUtils.isNotBlank(string) && string.length()!=9)
-            {
-                result = ValidationResult.create("Ean code must have 9 digits", ErrorLevel.ERROR);
-            }
-            else
-            {
-                result = digitValidator.apply(string, valueContext);
-            }
-            return result;
-        })
-        .asRequired().bind(Book::getEanCode,
-                Book::setEanCode);
-        binder.forField(publishingDate).asRequired().bind(Book::getPublicationDate,
-                Book::setPublicationDate);
-
 
         return new BinderCrudEditor<>(binder, form);
     }
@@ -113,7 +102,7 @@ public class BookCrudView extends Div {
         Grid<Book> grid = crud.getGrid();
 
         // Only show these columns (all columns shown by default):
-        List<String> visibleColumns = Arrays.asList(NAME, AUTHOR,PAGES, EAN_CODE,PUBLICATION_DATE,EDIT_COLUMN);
+        List<String> visibleColumns = Arrays.asList(BookViewHelper.FIELD.NAME.getValue(), BookViewHelper.FIELD.AUTHOR.getValue(),BookViewHelper.FIELD.PAGES.getValue(), BookViewHelper.FIELD.EAN_CODE.getValue(),BookViewHelper.FIELD.PUBLICATION_DATE.getValue(),EDIT_COLUMN);
         grid.getColumns().forEach(column -> {
             String key = column.getKey();
             if (!visibleColumns.contains(key)) {
@@ -121,13 +110,12 @@ public class BookCrudView extends Div {
             }
         });
 
-        // Reorder the columns (alphabetical by default)
-        grid.setColumnOrder(grid.getColumnByKey(NAME),
-                grid.getColumnByKey(AUTHOR),grid.getColumnByKey(PAGES),grid.getColumnByKey(EAN_CODE),grid.getColumnByKey(PUBLICATION_DATE), grid.getColumnByKey(EDIT_COLUMN));
+        grid.setColumnOrder(grid.getColumnByKey(BookViewHelper.FIELD.NAME.getValue()),
+                grid.getColumnByKey(BookViewHelper.FIELD.AUTHOR.getValue()),grid.getColumnByKey(BookViewHelper.FIELD.PAGES.getValue()),grid.getColumnByKey(BookViewHelper.FIELD.EAN_CODE.getValue()),grid.getColumnByKey(BookViewHelper.FIELD.PUBLICATION_DATE.getValue()), grid.getColumnByKey(EDIT_COLUMN));
     }
 
     private void setupDataProvider() {
-        BookDataProvider dataProvider = new BookDataProvider(service);
+        BookCrudDataProvider dataProvider = new BookCrudDataProvider(service);
         crud.setDataProvider(dataProvider);
         crud.addDeleteListener(
                 deleteEvent -> dataProvider.delete(deleteEvent.getItem()));

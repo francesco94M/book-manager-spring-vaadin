@@ -1,4 +1,4 @@
-package com.fm.bookmanager.restControllers;
+package com.fm.bookmanager.api;
 
 import java.util.List;
 
@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fm.bookmanager.entity.Book;
-import com.fm.bookmanager.repository.BookRepository;
+import com.fm.bookmanager.repository.implementations.BookRepository;
 import com.fm.bookmanager.utils.exceptions.BookNotFoundException;
 
 
 @RestController
 public class BookController {
 
-    private static final String BASE_PATH = "/books";
+    public static final String BASE_PATH = "/books";
     private final BookRepository repository;
 
     BookController(BookRepository repository) {

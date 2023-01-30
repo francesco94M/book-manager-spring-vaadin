@@ -1,4 +1,4 @@
-package com.fmexperiments.application.entity;
+package com.fm.bookmanager.entity;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;

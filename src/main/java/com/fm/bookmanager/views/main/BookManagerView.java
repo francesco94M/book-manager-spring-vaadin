@@ -1,6 +1,7 @@
 package com.fm.bookmanager.views.main;
 
 import static com.fm.bookmanager.utils.Constants.BOOK_MANAGER_PATH;
+import static com.fm.bookmanager.views.main.BookManagerView.BASE_PATH;
 
 import javax.annotation.security.PermitAll;
 
@@ -14,25 +15,22 @@ import com.vaadin.flow.router.Route;
 
 
 @PageTitle("Book Manager")
-@Route(value = BOOK_MANAGER_PATH+"view", layout = AppLayout.class)
+@Route(value =BASE_PATH, layout = AppLayout.class)
 @PermitAll
-public class FindBookView extends Div {
+public class BookManagerView extends Div {
 
+    public static final String BASE_PATH = BOOK_MANAGER_PATH+"view";
     private VerticalLayout mainLayout;
 
     private final BookService bookService;
 
-    public FindBookView(BookService bookService) {
+    public BookManagerView(BookService bookService) {
         this.bookService = bookService;
-
-        //addClassNames("appbook-manager-view");
-
         mainLayout = new VerticalLayout();
         mainLayout.setWidthFull();
         mainLayout.setHeightFull();
         initializeCrudComponent();
         add(mainLayout);
-
     }
 
 

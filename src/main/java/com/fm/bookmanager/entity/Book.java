@@ -1,4 +1,4 @@
-package com.fmexperiments.application.entity;
+package com.fm.bookmanager.entity;
 
 import java.time.LocalDate;
 
@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 
 @Entity
 public class Book extends AbstractEntity {
+
 
     private String name;
     private String author;

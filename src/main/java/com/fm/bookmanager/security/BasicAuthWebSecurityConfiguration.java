@@ -1,4 +1,4 @@
-package com.fm.bookmanager.utils;
+package com.fm.bookmanager.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.fm.bookmanager.api.BookController;
+
 
 @Configuration
 @EnableWebSecurity
@@ -20,7 +22,7 @@ public class BasicAuthWebSecurityConfiguration extends WebSecurityConfigurerAdap
     @Override
     protected void configure(HttpSecurity http) throws Exception
     {
-        http.csrf().disable().authorizeRequests().antMatchers("/books/**").hasRole("API")
+        http.csrf().disable().authorizeRequests().antMatchers(BookController.BASE_PATH+"/**").hasRole("API")
             .and()
             .httpBasic();
 

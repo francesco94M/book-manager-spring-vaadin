@@ -1,4 +1,4 @@
-package com.fm.bookmanager.views.main;
+package com.fm.bookmanager.views.components;
 
 import java.lang.reflect.Field;
 import java.util.Comparator;
@@ -18,11 +18,8 @@ import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
 import static java.util.Comparator.naturalOrder;
 
-import org.springframework.beans.factory.annotation.Autowired;
 
-
-// Person data provider
-public class BookDataProvider
+public class BookCrudDataProvider
         extends AbstractBackEndDataProvider<Book, CrudFilter> {
 
     private List<Book> allBooks;
@@ -31,7 +28,7 @@ public class BookDataProvider
     private final BookService service;
     private Consumer<Long> sizeChangeListener;
 
-    public BookDataProvider(BookService service)
+    public BookCrudDataProvider(BookService service)
     {
         this.service = service;
     }
@@ -119,7 +116,7 @@ public class BookDataProvider
                     .orElse(0L) + 1L);
         }
         //final Optional<Book> existingItem = find(item.getId());
-        service.update(item);
+        service.createOrUpdate(item);
         refreshLocalBooksData();
     }
 
