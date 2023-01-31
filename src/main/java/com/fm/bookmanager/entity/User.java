@@ -13,7 +13,7 @@ public class User extends AbstractEntity {
 
     private String username;
     private String name;
-    @JsonIgnore
+
     private String password;
 
     public String getUsername() {
